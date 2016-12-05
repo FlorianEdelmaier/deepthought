@@ -6,69 +6,76 @@ const CONSTS = {
   'ADD': 'add',
   'MULTI': 'multiply'
 }
-const WHITESPACE = /\s/;
-const NUMBERS = /[0-9]/;
-const LETTERS = /[a-z]/i;
+ 
+const isWhiteSpace = (char) => /\s/.test(char);
+const isInteger = (char) => /[0-9]/.test(char);
+const isChar = (char) => /[a-z]/i.test(char);
+const isParentheses = (char) => char === '(' || char === ')';
+const isAssignOperator = (char) => char === '=';
+const isPlusOperator = (char) => char === '+';
+const isMinusOperator = (char) => char === '-';
+const isMultiplyOperator = (char) => char === '*';
+ 
+const createIntegerToken = (v, pos) => ({type: CONSTS.NUMBER, value: v, position: pos});
+const createStringToken = (v, pos) => ({type: CONSTS.NAME, value: v, position: pos});
+const createPlusToken = (v, pos) => ({type: CONSTS.ADD, value: v, position: pos});
+const createMultiplyToken = (v, pos) => ({type: CONSTS.MULTI, value: v, position: pos});
+const createParenthesesToken = (v, pos) => ({type: CONSTS.PAREN, value: v, position: pos});
+const createAssignToken = (v, pos) => ({type: CONSTS.ASSIGN, value: v, position: pos});
  
 const tokenizer = (input) => {
   let current = 0;
   let tokens = [];
- 
   while(current < input.length) {
     let char = input[current];
-    if(char === '(') {
-      tokens.push({type: CONSTS.PAREN, value: char});
+    if(isParentheses(char)) {
+      tokens.push(createParenthesesToken(char, current));
       current++;
       continue;
     }
-    if(char === ')') {
-      tokens.push({type: CONSTS.PAREN, value: char});
+    if(isAssignOperator(char)) {
+      tokens.push(createAssignToken(char, current));
       current++;
       continue;
     }
-    if(char === '=') {
-      tokens.push({type: CONSTS.ASSIGN, value: char});
+    if(isPlusOperator(char)) {
+      tokens.push(createPlusToken(char, current));
       current++;
       continue;
     }
-    if(char === '+') {
-      tokens.push({type: CONSTS.ADD, value: char});
+    if(isMultiplyOperator(char)) {
+      tokens.push(createMultiplyToken(char, current));
       current++;
       continue;
     }
-    if(char === '*') {
-      tokens.push({type: CONSTS.MULTI, value: char});
+    if(isWhiteSpace(char)) {
       current++;
       continue;
     }
-    if(WHITESPACE.test(char)) {
-      current++;
-      continue;
-    }
-   if(NUMBERS.test(char)) {
+   if(isInteger(char)) {
+      let startPos = current;
       let value = '';
-      while(NUMBERS.test(char)) {
+      while(isInteger(char)) {
         value += char;
         char = input[++current];
       }
-     
-      tokens.push({type: CONSTS.NUMBER, value: value});
+      tokens.push(createIntegerToken(value, startPos));
       continue;
     }
-    if(LETTERS.test(char)) {
+    if(isChar(char)) {
+      let startPos = current;
       let value = '';
-      while(LETTERS.test(char)) {
+      while(isChar(char)) {
         value += char;
         char = input[++current];
       }
-      tokens.push({type: CONSTS.NAME, value: value});
+      tokens.push(createStringToken(value, startPos));
       continue;
     }
-   
+  
     throw new TypeError('Character is unknown: ' + char);
   }
   return tokens;
 }
- 
 let test = tokenizer('let test = (1 + 4) * 3');
 console.log(test);
