@@ -1,0 +1,25 @@
+{
+  "name": "deepthought",
+  "version": "1.0.0",
+  "description": "online interpreter",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FlorianEdelmaier/deepthought.git"
+  },
+  "author": "florian.edelmaier@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/FlorianEdelmaier/deepthought/issues"
+  },
+  "homepage": "https://github.com/FlorianEdelmaier/deepthought#readme",
+  "devDependencies": {
+    "babel-core": "^6.18.2",
+    "babel-loader": "^6.2.8",
+    "babel-plugin-syntax-flow": "^6.18.0",
+    "webpack": "^1.13.3"
+  }
+}
