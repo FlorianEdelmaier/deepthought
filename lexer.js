@@ -19,79 +19,66 @@ const isPlusOperator = (char) => char === '+';
 const isMinusOperator = (char) => char === '-';
 const isMultiplyOperator = (char) => char === '*';
  
-const createIntegerToken = (v) => ({type: CONSTS.NUMBER, value: v});
-const createStringToken = (v) => ({type: CONSTS.NAME, value: v});
-const createPlusToken = (v) => ({type: CONSTS.ADD, value: v});
-const createMultiplyToken = (v) => ({type: CONSTS.MULTI, value: v});
-const createParenthesesToken = (v) => ({type: CONSTS.PAREN, value: v});
-const createAssignToken = (v) => ({type: CONSTS.ASSIGN, value: v});
+const createIntegerToken = (v, p) => ({type: CONSTS.NUMBER, value: v, pos: p});
+const createStringToken = (v, p) => ({type: CONSTS.NAME, value: v, pos: p});
+const createPlusToken = (v, p) => ({type: CONSTS.ADD, value: v, pos: p});
+const createMultiplyToken = (v, p) => ({type: CONSTS.MULTI, value: v, pos: p});
+const createParenthesesToken = (v, p) => ({type: CONSTS.PAREN, value: v, pos: p});
+const createAssignToken = (v, p) => ({type: CONSTS.ASSIGN, value: v, pos: p});
 
 function* getNextChar(input) {
     let current = 0;
     while(current < input.length) {
-      yield input[current];
+      yield {val: input[current], pos: current};
       current++;
     }
 }
 
 class Tokenizer {
   constructor(input) {
-    curCharacter = '';
-    gen = getNextChar(input);
+    this.curCharacter = {};
+    this.nextCharacter = {};
+    this.gen = getNextChar(input);
+    this.nextCharacter = this.parseValue(this.gen.next());
   }
-  
+
+  parseValue(dict) {
+    return dict.value ? dict.value : {val: CONSTS.EOL};
+  }
+
   eat() {
-    if(this.curCharacter !== consts.EOL) {
-      let next = gen.next();
-      if(next.value) curCharacter = next.value;
-      else curCharacter = consts.EOL; 
+    if(this.curCharacter.val !== CONSTS.EOL) {
+      this.curCharacter = this.nextCharacter;
+      this.nextCharacter = this.parseValue(this.gen.next());
     }
   }
   
   tokenize() {
     let tokens = [];
     this.eat();
-    while(this.curCharacter !== consts.EOL) {
-      if(isInteger(this.curCharacter)) tokens.push(createIntegerToken(this.curCharacter));
-      if(isParentheses(this.curCharacter)) tokens.push(createParenthesesToken(this.curCharacter));
-      if(isAssignOperator(this.curCharacter)) tokens.push(createAssignToken(this.curCharacter));
-      if(isPlusOperator(this.curCharacter)) tokens.push(createPlusToken(this.curCharacter));
-      if(isMultiplyOperator(this.curCharacter)) tokens.push(createMultiplyToken(this.curCharacter));
-      // if(isWhiteSpace(this.curCharacter)) continue;
+    while(this.curCharacter.val !== CONSTS.EOL) {
+      const val = this.curCharacter.val;
+      const pos = this.curCharacter.pos;if(isInteger(val)) tokens.push(createIntegerToken(val, pos));
+      if(isParentheses(val)) tokens.push(createParenthesesToken(val, pos));
+      if(isAssignOperator(val)) tokens.push(createAssignToken(val, pos));
+      if(isPlusOperator(val)) tokens.push(createPlusToken(val, pos));
+      if(isMultiplyOperator(val)) tokens.push(createMultiplyToken(val, pos));
+      if(isChar(val)) {
+        let str = val;
+        while(isChar(this.nextCharacter.val)) {
+          this.eat();
+          str += this.curCharacter.val;
+        }
+        tokens.push(createStringToken(str, pos));
+      }
+      if(isWhiteSpace(val)) {}
       // else
-      //   throw new TypeError('Character is unknown: ' + c);
+      //   throw new TypeError('Character is unknown: ' + this.curCharacter);
       this.eat();
     }
     return tokens;
   }
 }
   
-const tokenize = (input) => {
-    let tokens = [];
-    const gen = getNextChar(input);
-    let value = '';
-    while((value = gen.next()).value) {
-      const c = value.value;
-      if(isInteger(c)) tokens.push(createIntegerToken(c));
-      if(isChar(c)) {
-        let v = c;
-        let nextValue = '';
-        while(isChar((nextValue = gen.next()).value))
-        {
-          v += nextValue.value;
-        }
-        tokens.push(createStringToken(c));
-      }
-      if(isParentheses(c)) tokens.push(createParenthesesToken(c));
-      if(isAssignOperator(c)) tokens.push(createAssignToken(c));
-      if(isPlusOperator(c)) tokens.push(createPlusToken(c));
-      if(isMultiplyOperator(c)) tokens.push(createMultiplyToken(c));
-      if(isWhiteSpace) continue;
-      else
-        throw new TypeError('Character is unknown: ' + c);
-    }
-    return tokens;
-}
-
 let test = new Tokenizer('let test = (1 + 4) * 3');
-console.log(test);
+console.log(test.tokenize());
