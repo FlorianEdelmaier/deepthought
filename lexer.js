@@ -1,14 +1,6 @@
 'use strict';
 
-const CONSTS = {
-  'PAREN': 'parentheses',
-  'NUMBER': 'number',
-  'NAME': 'name',
-  'ASSIGN': 'assignment',
-  'ADD': 'add',
-  'MULTI': 'multiply',
-  'EOL': 'endOfLine'
-}
+const CONSTS = require('./constants');
  
 const isWhiteSpace = (char) => /\s/.test(char);
 const isInteger = (char) => /[0-9]/.test(char);
@@ -79,6 +71,7 @@ class Tokenizer {
     return tokens;
   }
 }
+
+module.exports = Tokenizer;
   
-let test = new Tokenizer('let test = (1 + 4) * 3');
-console.log(test.tokenize());
+
