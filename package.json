@@ -4,6 +4,7 @@
   "description": "online interpreter",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "mocha"
   },
   "repository": {
